@@ -15,11 +15,11 @@ def validate_plant_data(data):
         valid = False
         errors.append("Soil Moisture should be between 0 and 100%.")
 
-    if not (0 <= data["Ambient_Temperature"] <= 60):  # Allow slightly higher temperature range
+    if not (0.0 <= data["Ambient_Temperature"] <= 60.0):
         valid = False
         errors.append("Ambient Temperature should be between 0 and 60°C.")
 
-    if not (0 <= data["Soil_Temperature"] <= 60):  # Same for soil temperature
+    if not (0.0 <= data["Soil_Temperature"] <= 60.0):
         valid = False
         errors.append("Soil Temperature should be between 0 and 60°C.")
 
@@ -27,53 +27,109 @@ def validate_plant_data(data):
         valid = False
         errors.append("Humidity should be between 0 and 100%.")
 
-    if not (0 <= data["Light_Intensity"] <= 10000):  # Allow higher light intensity range
+    if not (0 <= data["Light_Intensity"] <= 10000):
         valid = False
         errors.append("Light Intensity should be between 0 and 10,000 lux.")
 
-    if not (0 <= data["Soil_pH"] <= 14):
+    if not (0.0 <= data["Soil_pH"] <= 14.0):
         valid = False
         errors.append("Soil pH should be between 0 and 14.")
 
-    if not (0 <= data["Nitrogen_Level"] <= 300):  # Increased range for Nitrogen Level
+    if not (0 <= data["Nitrogen_Level"] <= 300):
         valid = False
         errors.append("Nitrogen Level should be between 0 and 300 ppm.")
 
-    if not (0 <= data["Phosphorus_Level"] <= 300):  # Increased range for Phosphorus Level
+    if not (0 <= data["Phosphorus_Level"] <= 300):
         valid = False
         errors.append("Phosphorus Level should be between 0 and 300 ppm.")
 
-    if not (0 <= data["Potassium_Level"] <= 300):  # Increased range for Potassium Level
+    if not (0 <= data["Potassium_Level"] <= 300):
         valid = False
         errors.append("Potassium Level should be between 0 and 300 ppm.")
 
-    if not (0 <= data["Chlorophyll_Content"] <= 200):  # Increased range for Chlorophyll Content
+    if not (0.0 <= data["Chlorophyll_Content"] <= 200.0):
         valid = False
         errors.append("Chlorophyll Content should be between 0 and 200 µg/g.")
 
-    if not (0 <= data["Electrochemical_Signal"] <= 100):  # Increased range for Electrochemical Signal
+    if not (0.0 <= data["Electrochemical_Signal"] <= 100.0):
         valid = False
         errors.append("Electrochemical Signal should be between 0 and 100 mA/s.")
-    
+
     return valid, errors
 
 # Function for Plant Health Prediction Page
 def plant_health_page():
     st.title("Plant Health Prediction")
 
-    # Input fields for plant data
+    # Predefined classes
+    classes = {
+        "Healthy": {
+            "Soil_Moisture": 40,
+            "Ambient_Temperature": 25.0,
+            "Soil_Temperature": 20.0,
+            "Humidity": 50,
+            "Light_Intensity": 5000,
+            "Soil_pH": 6.5,
+            "Nitrogen_Level": 150,
+            "Phosphorus_Level": 100,
+            "Potassium_Level": 120,
+            "Chlorophyll_Content": 50.0,
+            "Electrochemical_Signal": 50.0,
+        },
+        "Unhealthy": {
+            "Soil_Moisture": 20,
+            "Ambient_Temperature": 35.0,
+            "Soil_Temperature": 30.0,
+            "Humidity": 20,
+            "Light_Intensity": 2000,
+            "Soil_pH": 4.5,
+            "Nitrogen_Level": 50,
+            "Phosphorus_Level": 30,
+            "Potassium_Level": 40,
+            "Chlorophyll_Content": 10.0,
+            "Electrochemical_Signal": 10.0,
+        },
+        "Critical": {
+            "Soil_Moisture": 5,
+            "Ambient_Temperature": 50.0,
+            "Soil_Temperature": 45.0,
+            "Humidity": 5,
+            "Light_Intensity": 500,
+            "Soil_pH": 3.0,
+            "Nitrogen_Level": 10,
+            "Phosphorus_Level": 10,
+            "Potassium_Level": 10,
+            "Chlorophyll_Content": 5.0,
+            "Electrochemical_Signal": 5.0,
+        },
+    }
+
+    # Buttons to set input values
     st.write("Enter plant health data below:")
-    soil_moisture = st.number_input("Soil Moisture (%)", value=10)
-    ambient_temp = st.number_input("Ambient Temperature (°C)", value=10.0)
-    soil_temp = st.number_input("Soil Temperature (°C)", value=10.0)
-    humidity = st.number_input("Humidity (%)", value=10.0)
-    light_intensity = st.number_input("Light Intensity (lux)", value=10)
-    soil_ph = st.number_input("Soil pH", value=10.0)
-    nitrogen_level = st.number_input("Nitrogen Level (ppm)", value=10)
-    phosphorus_level = st.number_input("Phosphorus Level (ppm)", value=10)
-    potassium_level = st.number_input("Potassium Level (ppm)", value=10)
-    chlorophyll_content = st.number_input("Chlorophyll Content (µg/g)", value=10.0)
-    electrochemical_signal = st.number_input("Electrochemical Signal (mA/s)", value=10.0)
+    col1, col2, col3 = st.columns(3)
+
+    if col1.button("Healthy"):
+        st.session_state.plant_data = classes["Healthy"]
+    if col2.button("Unhealthy"):
+        st.session_state.plant_data = classes["Unhealthy"]
+    if col3.button("Critical"):
+        st.session_state.plant_data = classes["Critical"]
+
+    # Default values or session state
+    plant_data = st.session_state.get("plant_data", classes["Healthy"])
+
+    # Input fields for plant data
+    soil_moisture = st.slider("Soil Moisture (%)", 0, 100, value=plant_data["Soil_Moisture"])
+    ambient_temp = st.slider("Ambient Temperature (°C)", 0.0, 60.0, value=plant_data["Ambient_Temperature"])
+    soil_temp = st.slider("Soil Temperature (°C)", 0.0, 60.0, value=plant_data["Soil_Temperature"])
+    humidity = st.slider("Humidity (%)", 0, 100, value=plant_data["Humidity"])
+    light_intensity = st.slider("Light Intensity (lux)", 0, 10000, value=plant_data["Light_Intensity"])
+    soil_ph = st.slider("Soil pH", 0.0, 14.0, value=plant_data["Soil_pH"])
+    nitrogen_level = st.slider("Nitrogen Level (ppm)", 0, 300, value=plant_data["Nitrogen_Level"])
+    phosphorus_level = st.slider("Phosphorus Level (ppm)", 0, 300, value=plant_data["Phosphorus_Level"])
+    potassium_level = st.slider("Potassium Level (ppm)", 0, 300, value=plant_data["Potassium_Level"])
+    chlorophyll_content = st.slider("Chlorophyll Content (µg/g)", 0.0, 200.0, value=plant_data["Chlorophyll_Content"])
+    electrochemical_signal = st.slider("Electrochemical Signal (mA/s)", 0.0, 100.0, value=plant_data["Electrochemical_Signal"])
 
     # Collect data into a dictionary
     plant_data = {
@@ -108,22 +164,19 @@ def plant_health_page():
             st.write("Predicted Plant Health Classes:")
             for idx, prediction in enumerate(predictions.get("predictions", []), start=1):
                 st.write(f"Plant {idx}: {prediction}")
+            st.session_state.predictions = predictions.get("predictions", [])
         else:
             st.error("Error in prediction! Please check your inputs.")
 
-    # Button to navigate to chatbot page
-    if st.button("Go to Chatbot with this Data"):
-        st.session_state.chat_data = plant_data  # Store the data for chatbot use
-        st.session_state.page = "Chatbot"  # Change page state to "Chatbot"
-        # Remove st.experimental_set_query_params, and use session state
-        st.session_state.page = "Chatbot"  # Navigate to the Chatbot page directly
+    # Button to send predictions to chatbot
+    if st.button("Send to Chatbot"):
+        st.session_state.page = "Chatbot"
 
-# Function for Chatbot Page
 def chatbot_page():
     st.title("Chatbot")
 
     if "chat_data" in st.session_state:
-        user_message = st.text_input("Chat with the assistant", "Provide the plant data along with any insights for better analysis.")
+        user_message = st.text_input("Chat with the assistant", "Use the plant data provided")
         plant_data = st.session_state.chat_data
 
         if st.button("Send"):
@@ -144,7 +197,6 @@ def chatbot_page():
 
 # Main function to manage navigation between pages
 def main():
-    # Define the pages for navigation
     page = st.sidebar.radio("Select a Page", ("Plant Health Prediction", "Chatbot"))
 
     if page == "Plant Health Prediction":
@@ -156,7 +208,5 @@ def main():
 if "page" not in st.session_state:
     st.session_state.page = "Plant Health Prediction"
 
-# Run the app
 if __name__ == "__main__":
     main()
-
