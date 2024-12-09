@@ -145,54 +145,57 @@ def chatbot_page():
         del st.session_state.tmp_data
         
     st.title("Chatbot")
-
-    if "plant_data" in st.session_state:
-       
-        plant_data = str(st.session_state.plant_data)
-        user_message = st.text_input("Chat with the assistant", "Use the plant data provided")
+    try:
+        if "plant_data" in st.session_state:
         
-        if st.button("Clear Data"):
-            del st.session_state.plant_data
+            plant_data = str(st.session_state.plant_data)
+            user_message = st.text_input("Chat with the assistant", "Use the plant data provided")
+            
+            if st.button("Clear Data"):
+                del st.session_state.plant_data
 
-        if st.button("Send"):
-            # try:
-                chatbot_input = f"{user_message}\nPlant Data:\n{plant_data}"
-                st.session_state.chat_history.append({"role": "user", 
-                                                      "content": chatbot_input})
+            if st.button("Send"):
                 
-                chat_completion = client.chat.completions.create(
-                    messages=st.session_state.chat_history,
-                    model="llama3-8b-8192",
-                )
+                    chatbot_input = f"{user_message}\nPlant Data:\n{plant_data}"
+                    st.session_state.chat_history.append({"role": "user", 
+                                                        "content": chatbot_input})
+                    
+                    chat_completion = client.chat.completions.create(
+                        messages=st.session_state.chat_history,
+                        model="llama3-8b-8192",
+                    )
+                    
+                    assistant_response = chat_completion.choices[0].message.content
+                    st.session_state.chat_history.append({"role":"system",
+                                                        "content":assistant_response if assistant_response is not None else "No response received."
+                                                        
+                    
+                    })
+                    st.write(assistant_response)
                 
-                assistant_response = chat_completion.choices[0].message.content
-                st.session_state.chat_history.append({"role":"system",
-                                                      "content":assistant_response if assistant_response is not None else "No response received."
-                                                      
-                
-                })
-                st.write(assistant_response)
-                
-    else:
-        user_message = st.text_input("Chat with the assistant", "Use the plant data provided")
-        if st.button("Send"):
-            # try:
-                chatbot_input = f"{user_message}"
-                st.session_state.chat_history.append({"role": "user", 
-                                                      "content": chatbot_input})
-                
-                chat_completion = client.chat.completions.create(
-                    messages=st.session_state.chat_history,
-                    model="llama3-8b-8192",
-                )
-                
-                assistant_response = chat_completion.choices[0].message.content
-                st.session_state.chat_history.append({"role":"system",
-                                                      "content":assistant_response if assistant_response is not None else "No response received."
-                                                      
-                
-                })
-                st.write(assistant_response)
+
+        else:
+            user_message = st.text_input("Chat with the assistant", "Use the plant data provided")
+            if st.button("Send"):
+                # try:
+                    chatbot_input = f"{user_message}"
+                    st.session_state.chat_history.append({"role": "user", 
+                                                        "content": chatbot_input})
+                    
+                    chat_completion = client.chat.completions.create(
+                        messages=st.session_state.chat_history,
+                        model="llama3-8b-8192",
+                    )
+                    
+                    assistant_response = chat_completion.choices[0].message.content
+                    st.session_state.chat_history.append({"role":"system",
+                                                        "content":assistant_response if assistant_response is not None else "No response received."
+                                                        
+                    
+                    })
+                    st.write(assistant_response)
+    except:
+        st.error("Chatbot is not working")
 
             
         
