@@ -1,35 +1,21 @@
-# from joblib import load
-# from groq import Groq
-
-# # Define the plant health classes
-# classes = ['Healthy', 'High Stress', 'Moderate Stress']
-
-# # Load the trained random forest model
-# loaded_clf = load('random_forest_model.joblib')
-
-
-# # Initialize the Groq client
-# client = Groq(
-#     api_key="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")
-
-# # Initialize the chat history list
-# chat_history = [
-#     {  # Initial message (optional)
-#         "role": "system",
-#         "content":
-#         ("You are an Ai assistant that help user for their plants to get healthy based on give"
-#          "Ask the user to provide the following information: Soil Moisture, Ambient Temperature, "
-#          "Soil Temperature, Humidity, Light Intensity, Soil pH, Nitrogen Level, Phosphorus Level, "
-#          "Potassium Level, Chlorophyll Content, and Electrochemical Signal. "
-#          "Once you have all the required inputs, generate a JSON payload to send for prediction."
-#          )
-#     },
-# ]
-
-
 import streamlit as st
 from joblib import load
 import sklearn
+from groq import Groq
+
+# Initialize the Groq client
+client = Groq(
+    api_key="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")
+
+# Initialize the chat history list
+st.session_state.chat_history = [
+    {  # Initial message (optional)
+        "role": "system",
+        "content":
+        ("You are an Ai assistant that help user for their plants to get healthy based on their given data ")
+    },
+]
+
 
 # Set page config
 st.set_page_config(
@@ -44,12 +30,6 @@ label_classes = ['Healthy', 'High Stress', 'Moderate Stress']
 
 # Load the trained random forest model
 loaded_clf = load('random_forest_model.joblib')
-sample_data = [[
-     27.521108772254976, 22.24024536256306, 21.90043535506952,
-    55.29190389508887, 556.172805131218, 5.581954516265902, 10.003649716693408,
-    45.80685202827101, 39.0761990273964, 35.703005710811865, 0.9414021464707312
-]]
-
 
 
 # Function for Plant Health Prediction Page
@@ -102,16 +82,19 @@ def plant_health_page():
     # Buttons to set input values
     st.write("Enter plant health data below:")
     col1, col2, col3= st.columns(3)
-
+    
     if col1.button("Healthy"):
-        st.session_state.plant_data = classes["Healthy"]
+        st.session_state.tmp_data = classes["Healthy"]
     if col2.button("Unhealthy"):
-        st.session_state.plant_data = classes["Unhealthy"]
+        st.session_state.tmp_data = classes["Unhealthy"]
     if col3.button("Critical"):
-        st.session_state.plant_data = classes["Critical"]
+        st.session_state.tmp_data = classes["Critical"]
 
     # Default values or session state
-    plant_data = st.session_state.get("plant_data", classes["Healthy"])
+    if "tmp_data" in st.session_state:
+        plant_data = st.session_state.tmp_data
+    else:
+        plant_data = st.session_state.get("plant_data", classes["Healthy"])
 
     # Input fields for plant data
     soil_moisture = st.slider("Soil Moisture (%)", 0, 100, value=plant_data["Soil_Moisture"])
@@ -140,8 +123,10 @@ def plant_health_page():
         "Chlorophyll_Content": chlorophyll_content,
         "Electrochemical_Signal": electrochemical_signal,
     }
-
-    st.session_state.plant_data = plant_data
+    
+    if st.button("Save Data to chatbot"):
+        st.session_state.plant_data = plant_data
+        st.success("Data saved!!")
     
     # Button to predict plant health
     if st.button("Predict Plant Health"):
@@ -155,12 +140,63 @@ def plant_health_page():
             st.error("Error in prediction! Please check your inputs.")
    
 def chatbot_page():
+    
+    if "tmp_data" in st.session_state:
+        del st.session_state.tmp_data
+        
     st.title("Chatbot")
 
     if "plant_data" in st.session_state:
-        # user_message = st.text_input("Chat with the assistant", "Use the plant data provided")
-        plant_data = st.session_state.plant_data
-        st.write(plant_data)
+       
+        plant_data = str(st.session_state.plant_data)
+        user_message = st.text_input("Chat with the assistant", "Use the plant data provided")
+        
+        if st.button("Clear Data"):
+            del st.session_state.plant_data
+
+        if st.button("Send"):
+            # try:
+                chatbot_input = f"{user_message}\nPlant Data:\n{plant_data}"
+                st.session_state.chat_history.append({"role": "user", 
+                                                      "content": chatbot_input})
+                
+                chat_completion = client.chat.completions.create(
+                    messages=st.session_state.chat_history,
+                    model="llama3-8b-8192",
+                )
+                
+                assistant_response = chat_completion.choices[0].message.content
+                st.session_state.chat_history.append({"role":"system",
+                                                      "content":assistant_response if assistant_response is not None else "No response received."
+                                                      
+                
+                })
+                st.write(assistant_response)
+                
+    else:
+        user_message = st.text_input("Chat with the assistant", "Use the plant data provided")
+        if st.button("Send"):
+            # try:
+                chatbot_input = f"{user_message}"
+                st.session_state.chat_history.append({"role": "user", 
+                                                      "content": chatbot_input})
+                
+                chat_completion = client.chat.completions.create(
+                    messages=st.session_state.chat_history,
+                    model="llama3-8b-8192",
+                )
+                
+                assistant_response = chat_completion.choices[0].message.content
+                st.session_state.chat_history.append({"role":"system",
+                                                      "content":assistant_response if assistant_response is not None else "No response received."
+                                                      
+                
+                })
+                st.write(assistant_response)
+
+            
+        
+        
 
 def main():
     
@@ -170,6 +206,13 @@ def main():
         plant_health_page()
     elif page == "Chatbot":
         chatbot_page()
+    
+    st.sidebar.markdown("##### Data")
+    if "plant_data" in st.session_state:
+        st.sidebar.write(st.session_state.plant_data)
+    else:
+        st.sidebar.error("Data haven't choosen")
+    
 
 # Initialize the session state for the first time
 if "page" not in st.session_state:
