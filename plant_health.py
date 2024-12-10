@@ -11,18 +11,34 @@ loaded_clf = load('random_forest_model.joblib')
 
 
 def plant_health_page():
-    st.title("SímboloAI Plant Health Prediction")
-
-    # Buttons to set input values
+  # Buttons to set input values
     st.write("Enter plant health data below:")
-    col1, col2, col3 = st.columns(3)
 
-    if col1.button("Healthy"):
-        st.session_state.tmp_data = classes["Healthy"]
-    if col2.button("Unhealthy"):
-        st.session_state.tmp_data = classes["Unhealthy"]
-    if col3.button("Critical"):
-        st.session_state.tmp_data = classes["Critical"]
+    # Create three columns for the buttons
+    col1, col2, col3 = st.columns([1, 1.1, 1])  # Adjust ratios if needed
+
+    # Place one button in each column
+    with col1:
+        if st.button("Healthy"):
+            st.session_state.tmp_data = classes["Healthy"]
+
+    with col2:
+        if st.button("Unhealthy"):
+            st.session_state.tmp_data = classes["Unhealthy"]
+
+    with col3:
+        if st.button("Critical"):
+            st.session_state.tmp_data = classes["Critical"]
+
+    # # Create button layout in a row
+    # st.markdown('<div class="custom-container">', unsafe_allow_html=True)
+    # if st.button("Healthy", key="healthy"):
+    #     st.session_state.tmp_data = classes["Healthy"]
+    # if st.button("Unhealthy", key="unhealthy"):
+    #     st.session_state.tmp_data = classes["Unhealthy"]
+    # if st.button("Critical", key="critical"):
+    #     st.session_state.tmp_data = classes["Critical"]
+    # st.markdown('</div>', unsafe_allow_html=True)
 
     # Default values or session state
     if "tmp_data" in st.session_state:

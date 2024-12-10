@@ -34,8 +34,8 @@ def chatbot_page():
             user_message = st.text_input(
                 "Chat with the assistant", "Predict the plant's health based on the provided data, and explain the steps to handle this situation effectively.")
 
-            if st.button("Clear Data"):
-                del st.session_state.plant_data
+            # if st.button("Clear Data"):
+            #     del st.session_state.plant_data
 
             if st.button("Send"):
 

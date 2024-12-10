@@ -27,8 +27,15 @@ def main():
     st.sidebar.markdown("##### Data")
     if "plant_data" in st.session_state:
         st.sidebar.write(st.session_state.plant_data)
+        
+        if st.sidebar.button("Clear Data"):
+                del st.session_state.plant_data
+                st.rerun() 
     else:
         st.sidebar.error("Data haven't choosen")
+        
+        
+       
 
 
 # Initialize the session state for the first time
