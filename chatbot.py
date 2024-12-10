@@ -6,16 +6,26 @@ from groq import Groq
 client = Groq(
     api_key="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")
 
-# Initialize chat history if not already present in session_state
-if "chat_history" not in st.session_state:
-    st.session_state.chat_history = [
-        {
-            "role": "system",
-            "content": "You are an AI assistant that helps users with their plants' health based on the given data."
-        }
-    ]
+
 
 def chatbot_page():
+    st.session_state.chat_history = [
+    {
+        "role": "system",
+        "content": "You are an AI assistant that helps users with their plants' health based on the given data."
+    }
+]
+
+    # Ensure chat_history is initialized in session_state if not already present
+    if "chat_history" not in st.session_state:
+        st.session_state.chat_history = [
+            {
+                "role": "system",
+                "content": "You are an AI assistant that helps users with their plants' health based on the given data."
+            }
+        ]
+    
+    
     if "tmp_data" in st.session_state:
         del st.session_state.tmp_data
 
