@@ -37,7 +37,7 @@ def main():
         if st.sidebar.button("Clear Data"):
             del st.session_state.plant_data
             plant_data_container.empty()  # Clear the container where data was displayed
-            st.rerun()
+            # st.rerun()
     else:
         st.sidebar.error("Data haven't been chosen")
 
