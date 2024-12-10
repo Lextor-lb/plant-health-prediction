@@ -12,6 +12,7 @@ loaded_clf = load('random_forest_model.joblib')
 
 def plant_health_page():
   # Buttons to set input values
+    st.title("SímboloAI Plant Health Prediction")
     st.write("Enter plant health data below:")
 
     # Create three columns for the buttons
