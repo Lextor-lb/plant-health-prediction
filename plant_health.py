@@ -83,9 +83,22 @@ def plant_health_page():
         "Chlorophyll_Content": chlorophyll_content,
         "Electrochemical_Signal": electrochemical_signal,
     }
+    plant_data_with_units = {
+        "Soil_Moisture": f"{soil_moisture}%",
+        "Ambient_Temperature": f"{ambient_temp}°C",
+        "Soil_Temperature": f"{soil_temp}°C",
+        "Humidity": f"{humidity}%",
+        "Light_Intensity": f"{light_intensity} lux",
+        "Soil_pH": f"{soil_ph} pH",
+        "Nitrogen_Level": f"{nitrogen_level} ppm",
+        "Phosphorus_Level": f"{phosphorus_level} ppm",
+        "Potassium_Level": f"{potassium_level} ppm",
+        "Chlorophyll_Content": f"{chlorophyll_content}µg/g",
+        "Electrochemical_Signal": f"{electrochemical_signal}mA/s",
+    }
 
     if st.button("Save Data to chatbot"):
-        st.session_state.plant_data = plant_data
+        st.session_state.plant_data = plant_data_with_units
         st.success("Data saved!!")
 
     # Button to predict plant health

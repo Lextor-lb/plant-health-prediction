@@ -111,7 +111,7 @@ pip install -r requirements.txt
 | Soil Temperature       | 0.0 - 60.0 | °C          |
 | Humidity               | 0 - 100    | %           |
 | Light Intensity        | 0 - 10,000 | lux         |
-| Soil pH                | 0.0 - 14.0 | -           |
+| Soil pH                | 0.0 - 14.0 | pH           |
 | Nitrogen Level         | 0 - 300    | ppm         |
 | Phosphorus Level       | 0 - 300    | ppm         |
 | Potassium Level        | 0 - 300    | ppm         |
